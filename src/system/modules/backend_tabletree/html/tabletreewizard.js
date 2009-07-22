@@ -1,12 +1,12 @@
-
 /**
  * Class BackendTabletreeWizard
  *
  * Provide methods to handle back end tasks.
- * @copyright  Thyon Design
+ * @copyright  Thyon Design 2009
  * @author     John Brand <john.brand@thyon.com>
  * @package    BackendTaxonomyWizard
  */
+ 
 var AjaxRequestTabletree =
 {
 
@@ -45,7 +45,7 @@ var AjaxRequestTabletree =
 
 		new Request( 
 		{
-		    url: window.location.href,
+			url: window.location.href,
 			data: 'isAjax=1&action=loadTabletree&id=' + id + '&level=' + level + '&field=' + field + '&name=' + name + '&state=1',
 			onRequest: AjaxRequest.displayBox('Loading data ...'),
 
