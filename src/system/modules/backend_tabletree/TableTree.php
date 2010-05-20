@@ -226,12 +226,12 @@ class TableTree extends Widget
 			$varData = $varData[0][$this->strField];
 
 			
-			$ids = array_flip(split(',', deserialize($varData)));
+			$ids = array_flip(explode(',', deserialize($varData)));
 
 			$selection = array_intersect_key($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['options'], $ids);
 			if (count($selection))
 			{
-    		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = join(', ', $selection);
+    		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = implode(', ', $selection);
     	}
     	else
     	{
