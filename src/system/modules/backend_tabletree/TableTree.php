@@ -483,22 +483,26 @@ class TableTree extends Widget
 			// Add checkbox or radio button
 			else
 			{
-				switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
+				// only add input when the minumum level has been reached
+				if($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['minLevel']<=$level)
 				{
-					case 'checkbox':
-						$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
-						break;
-	
-					case 'radio':
-						$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
-						break;
+					switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
+					{
+						case 'checkbox':
+							$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+							break;
+		
+						case 'radio':
+							$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+							break;
+					}
 				}
 			}
 
 			$return .= '</div><div style="clear:both;"></div></li>';
 
 			// Call next node
-			if ($objNodes->childCount && $session[$node][$objNodes->id] == 1)
+			if ($objNodes->childCount && $session[$node][$objNodes->id] == 1 && (!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['maxLevel'] || ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['maxLevel']>$level)))
 			{
 				$return .= '<li class="parent" id="'.$xtnode.'_'.$objNodes->id.'"><ul class="level_'.$level.'">';
 				$return .= $this->renderTabletree($objNodes->id, ($intMargin + $intSpacing));
