@@ -449,18 +449,20 @@ class TableTree extends Widget
 			return '';
 		}
 
+		$minLevel=$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['minLevel']<=$level;
+		$maxLevel=(!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['maxLevel'] || ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['maxLevel']>$level));
 
 		// Add table item nodes
 		while ($objNodes->next())
 		{
 
-			$return .= "\n    " . '<li class="'.(($objNodes->childCount) ? 'tl_folder' : 'tl_file').'" onmouseover="Theme.hoverDiv(this, 1);" onmouseout="Theme.hoverDiv(this, 0);"><div class="tl_left" style="padding-left:'.($intMargin + $intSpacing).'px;">';
+			$return .= "\n    " . '<li class="'.(($objNodes->childCount && $maxLevel) ? 'tl_folder' : 'tl_file').'" onmouseover="Theme.hoverDiv(this, 1);" onmouseout="Theme.hoverDiv(this, 0);"><div class="tl_left" style="padding-left:'.($intMargin + $intSpacing).'px;">';
 
 			$folderAttribute = 'style="margin-left:20px;"';
 			$session[$node][$objNodes->id] = is_numeric($session[$node][$objNodes->id]) ? $session[$node][$objNodes->id] : 0;
 			
 			//	toggleStructure: function (el, id, level, mode)
-			if (($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] && $objNodes->childCount) || (!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] && $objNodes->grandchildCount))
+			if ((($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] && $objNodes->childCount) || (!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] && $objNodes->grandchildCount)) && $maxLevel)
 			{
 				$folderAttribute = '';
 				$img = ($session[$node][$objNodes->id] == 1) ? 'folMinus.gif' : 'folPlus.gif';
@@ -472,7 +474,7 @@ class TableTree extends Widget
 
 
 			// Add table item name
-			$return .= $this->generateImage($image, '', $folderAttribute).' <label for="'.$this->strName.'_'.$objNodes->id.'">'.(($objNodes->childCount) ? '<strong>' : '').$objNodes->name.(($objNodes->childCount) ? '</strong>' : '').'</label></div> <div class="tl_right">';
+			$return .= $this->generateImage($image, '', $folderAttribute).' <label for="'.$this->strName.'_'.$objNodes->id.'">'.(($objNodes->childCount && $maxLevel) ? '<strong>' : '').$objNodes->name.(($objNodes->childCount) ? '</strong>' : '').'</label></div> <div class="tl_right">';
 
 			// Prevent parent selection
 			if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['childrenOnly'] && $objNodes->childCount)
@@ -484,7 +486,7 @@ class TableTree extends Widget
 			else
 			{
 				// only add input when the minumum level has been reached
-				if($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['minLevel']<=$level)
+				if($minLevel)
 				{
 					switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
 					{
@@ -500,9 +502,8 @@ class TableTree extends Widget
 			}
 
 			$return .= '</div><div style="clear:both;"></div></li>';
-
 			// Call next node
-			if ($objNodes->childCount && $session[$node][$objNodes->id] == 1 && (!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['maxLevel'] || ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['maxLevel']>$level)))
+			if ($objNodes->childCount && $session[$node][$objNodes->id] == 1 && $maxLevel)
 			{
 				$return .= '<li class="parent" id="'.$xtnode.'_'.$objNodes->id.'"><ul class="level_'.$level.'">';
 				$return .= $this->renderTabletree($objNodes->id, ($intMargin + $intSpacing));
