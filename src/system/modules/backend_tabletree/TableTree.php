@@ -68,7 +68,7 @@ class TableTree extends Widget
 	 * Data Container
 	 * @var object
 	 */
-  protected $dataContainer;
+	protected $dataContainer;
 
 
 	/**
@@ -80,7 +80,7 @@ class TableTree extends Widget
 		$this->import('Database');
     
 		parent::__construct($arrAttributes);
-    $this->dataContainer = $dc;
+    	$this->dataContainer = $dc;
 	}
 
 
@@ -127,11 +127,8 @@ class TableTree extends Widget
 	 */
 	public function generate()
 	{
-	
-//print_r($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']);
-	
 		// get table, column and setup root id's
-    $root = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['root'];
+		$root = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['root'];
 		$root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? $root : 0);
 
 		// Reset radio button selection
@@ -168,7 +165,7 @@ class TableTree extends Widget
 	{
 			
 		// get icons
-    list($sourceTable, $sourceColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['tableColumn']);
+		list($sourceTable, $sourceColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['tableColumn']);
 
 		// setup default icons
 		$titleIcon = 'tablewizard.gif';
@@ -201,7 +198,6 @@ class TableTree extends Widget
 		
 		if (!$blnCatalog)
 		{
-			
 			$this->loadLanguageFile($sourceTable);
 			$this->loadDataContainer($sourceTable);			
 
@@ -210,45 +206,37 @@ class TableTree extends Widget
 			$titleIcon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][0] ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][0] : ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0] ? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0] : 'tablewizard.gif');
 
 			$icon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1] ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1] : ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1] ? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1] : 'iconPLAIN.gif');
-
-	
 		}
 
-
 		if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleValues'])
-    {
-
+		{
 			// cannot use $this->varValue, as its value is not available at load time
 			$objData = $this->Database->prepare("SELECT ".$this->strField." FROM ".$this->strTable." WHERE id=?")
 									 ->execute($this->Input->get('id'));
 
 			$varData = $objData->fetchAllAssoc();
 			$varData = $varData[0][$this->strField];
-
 			
 			$ids = array_flip(explode(',', deserialize($varData)));
 
 			$selection = array_intersect_key($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['options'], $ids);
 			if (count($selection))
 			{
-    		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = implode(', ', $selection);
-    	}
-    	else
-    	{
-    		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = sprintf($GLOBALS['TL_LANG']['MSC']['tableTree']['optionsTitle'], $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['label'][0]);
-    	}
-    }
+				$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = implode(', ', $selection);
+			}
+			else
+			{
+				$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = sprintf($GLOBALS['TL_LANG']['MSC']['tableTree']['optionsTitle'], $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['label'][0]);
+			}
+		}
 
-    if (!strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']))
-    {
+		if (!strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']))
+		{
 			$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = '<strong>'. $headerPrefix . '</strong>: ' .
 				($GLOBALS['TL_DCA'][$sourceTable]['fields'][$sourceColumn]['label'][0] ? $GLOBALS['TL_DCA'][$sourceTable]['fields'][$sourceColumn]['label'][0] : '<em>'.$sourceColumn.'</em>') ;
 		}
-
 		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] =  $titleIcon;
 		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['icon'] = $icon;
-
-
 	}
 
 
@@ -381,8 +369,8 @@ class TableTree extends Widget
 	{
 		static $session;
 		$session = $this->Session->getData();
-		
-    list($sourceTable, $sourceColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['tableColumn']);
+
+		list($sourceTable, $sourceColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['tableColumn']);
 
 		$flag = substr($this->strField, 0, 2);
 		$node = 'tree_' . $this->strTable . '_' . $this->strField;
@@ -397,7 +385,6 @@ class TableTree extends Widget
 			$this->redirect(preg_replace('/(&(amp;)?|\?)'.$flag.'tg=[^& ]*/i', '', $this->Environment->request));
 		}
 
-
 		$return = '';
 		$intSpacing = 20;
 		$level = ($intMargin / $intSpacing + 1);
@@ -405,10 +392,17 @@ class TableTree extends Widget
 		// check if this tree has a pid, catalog or a flat table
 		try
 		{
-			$objCatalog = $this->Database->prepare("SELECT tableName FROM tl_catalog_types WHERE tableName=?")
-					->limit(1)
-					->execute($sourceTable);
-			$blnCatalog = ($objCatalog->numRows == 1);
+			if($this->Database->tableExists('tl_catalog_types'))
+			{
+				$objCatalog = $this->Database->prepare("SELECT tableName FROM tl_catalog_types WHERE tableName=?")
+						->limit(1)
+						->execute($sourceTable);
+				$blnCatalog = ($objCatalog->numRows == 1);
+			}
+			else
+			{
+				$blnCatalog = false;
+			}
 
 			$treeView = $this->Database->fieldExists('pid', $sourceTable) && !$blnCatalog;
 
