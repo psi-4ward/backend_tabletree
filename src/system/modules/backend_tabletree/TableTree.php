@@ -406,7 +406,9 @@ class TableTree extends Widget
 
 			$treeView = $this->Database->fieldExists('pid', $sourceTable) && !$blnCatalog;
 
-			$sort = $this->Database->fieldExists('sorting', $sourceTable) ? 'sorting' : $sourceColumn;
+			$sort = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['sortColumn'];
+			if(!($sort && $this->Database->fieldExists($sort, $sourceTable)))
+				$sort = $this->Database->fieldExists('sorting', $sourceTable) ? 'sorting' : $sourceColumn;
 			if ($treeView)
 			{
 
