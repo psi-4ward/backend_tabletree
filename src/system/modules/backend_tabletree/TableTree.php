@@ -111,7 +111,7 @@ class TableTree extends Widget
 	 */
 	protected function validator($varInput)
 	{
-		if (!$this->Input->post($this->strName.'_save'))
+		if (!($this->Input->post($this->strName.'_save') || $this->alwaysSave))
 		{
 //			$this->mandatory = false;
 			$this->blnSubmitInput = false;
@@ -219,7 +219,7 @@ class TableTree extends Widget
 			
 			$ids = array_flip(explode(',', deserialize($varData)));
 
-			$selection = array_intersect_key($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['options'], $ids);
+			$selection = array_intersect_key($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['options']?$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['options']:array(), $ids);
 			if (count($selection))
 			{
 				$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = implode(', ', $selection);
