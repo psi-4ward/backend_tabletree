@@ -31,23 +31,20 @@ var AjaxRequestTabletree =
 			{
 				item.setStyle('display', 'inline');
 				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
-				new Request({url: window.location.href, method: 'get', data: 'isAjax=1&action=toggleTabletree&id=' + id + '&state=1'}).send();
+				new Request.Contao().post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 1, 'REQUEST_TOKEN': REQUEST_TOKEN});
 			}
 			else
 			{
 				item.setStyle('display', 'none');
 				image.src = image.src.replace('folMinus.gif', 'folPlus.gif');
-				new Request({url: window.location.href, method: 'get', data: 'isAjax=1&action=toggleTabletree&id=' + id + '&state=0'}).send();
+				new Request.Contao().post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 0, 'REQUEST_TOKEN': REQUEST_TOKEN});
 			}
 
 			return false;
 		}
 
-		new Request(
+		new Request.Contao(
 		{
-			url: window.location.href,
-			method: 'get',
-			data: 'isAjax=1&action=loadTabletree&id=' + id + '&level=' + level + '&field=' + field + '&name=' + name + '&state=1',
 			onRequest: AjaxRequest.displayBox('Loading data ...'),
 			onComplete: function(txt, xml)
 			{
@@ -68,7 +65,7 @@ var AjaxRequestTabletree =
 				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
 				AjaxRequest.hideBox();
 			}
-		}).send();
+		}).post({'isAjax': 1, 'action':'loadTabletree', 'id': id, 'level': level, 'field': field, 'name': name, 'state': 1, 'REQUEST_TOKEN': REQUEST_TOKEN});
 
 		return false;
 	}
