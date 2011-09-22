@@ -31,22 +31,22 @@ var AjaxRequestTabletree =
 			{
 				item.setStyle('display', 'inline');
 				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
-				new Request().post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 1});
+				new Request.Contao().post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 1, 'REQUEST_TOKEN': REQUEST_TOKEN});
 			}
 			else
 			{
 				item.setStyle('display', 'none');
 				image.src = image.src.replace('folMinus.gif', 'folPlus.gif');
-				new Request().post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 0});
+				new Request.Contao().post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 0, 'REQUEST_TOKEN': REQUEST_TOKEN});
 			}
 
 			return false;
 		}
 
-		new Request(
+		new Request.Contao(
 		{
 			onRequest: AjaxRequest.displayBox('Loading data ...'),
-			onComplete: function(txt, xml)
+			onSuccess: function(txt, xml)
 			{
 				var ul = new Element('ul');
 
@@ -65,7 +65,7 @@ var AjaxRequestTabletree =
 				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
 				AjaxRequest.hideBox();
 			}
-		}).post({'isAjax': 1, 'action':'loadTabletree', 'id': id, 'level': level, 'field': field, 'name': name, 'state': 1});
+		}).post({'isAjax': 1, 'action':'loadTabletree', 'id': id, 'level': level, 'field': field, 'name': name, 'state': 1, 'REQUEST_TOKEN': REQUEST_TOKEN});
 
 		return false;
 	}

@@ -325,6 +325,7 @@ class TableTree extends Widget
 				$nodes[$this->strAjaxId] = intval($this->Input->post('state'));
 
 				$this->Session->set($this->strAjaxKey, $nodes);
+				$this->outputAjax('');
 				exit; break;
 
 			// Load nodes of the file or page tree
@@ -342,6 +343,7 @@ class TableTree extends Widget
 				$nodes[$this->strAjaxId] = intval($this->Input->post('state'));
 
 				$this->Session->set($this->strAjaxKey, $nodes);
+				// DO NOT exit OR ouputAjax() here - also the postAction gets loaded in this case and takes care of the request token and exit
 				break;
 		}
 	}
@@ -364,9 +366,8 @@ class TableTree extends Widget
 		
 			$objWidget = new $GLOBALS['BE_FFL']['tableTree']($arrData, $dc);
 	
-			echo $objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level')));
+			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level'))));			
 			exit; break;
-
 		}
 	}
 
@@ -521,6 +522,28 @@ class TableTree extends Widget
 		}
 
 		return $return;
+	}
+
+
+	/**
+	 * Output data requested by ajax
+	 * @param string	content
+	 */
+	private function outputAjax($strContent)
+	{
+		// return token from Contao 2.10 on
+		if (version_compare(VERSION.'.'.BUILD, '2.10.0', '>='))
+		{
+			echo json_encode(array
+			(
+				'content'	=> $strContent,
+				'token'		=> REQUEST_TOKEN
+			));
+		}
+		else
+		{
+			echo $strContent;
+		}
 	}
 }
 
