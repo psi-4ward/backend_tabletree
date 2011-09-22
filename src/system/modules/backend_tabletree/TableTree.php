@@ -127,6 +127,19 @@ class TableTree extends Widget
 	 */
 	public function generate()
 	{
+		// include javascript file
+		$strJSSuffix = '';
+		switch(VERSION)
+		{
+			case '2.7':
+			case '2.8':
+			case '2.9':
+				$strJSSuffix = '_notoken';
+				break;
+		}
+		
+		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backend_tabletree/html/tabletreewizard' . $strJSSuffix . '.js';
+ 
 		// get table, column and setup root id's
 		$root = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['root'];
 		$root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? $root : 0);

@@ -25,19 +25,6 @@ $GLOBALS['BE_FFL']['tableTree'] = 'TableTree';
 
 if (TL_MODE == 'BE')
 {
-	/**
- 	* Widget Custom AJAX
-	 */
-	if (version_compare(VERSION.'.'.BUILD, '2.10.0', '>='))
-	{
-		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backend_tabletree/html/tabletreewizard_post-2-10.js';		
-	}
-	else 
-	{
-		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backend_tabletree/html/tabletreewizard_pre-2-10.js';
-	}
- 
-
 	$GLOBALS['TL_HOOKS']['executePreActions'][] = array('TableTree', 'executePreActions');
 	$GLOBALS['TL_HOOKS']['executePostActions'][] = array('TableTree', 'executePostActions');
 
