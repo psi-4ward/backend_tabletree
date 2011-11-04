@@ -31,13 +31,13 @@ var AjaxRequestTabletree =
 			{
 				item.setStyle('display', 'inline');
 				image.src = image.src.replace('folPlus.gif', 'folMinus.gif');
-				new Request({url: window.location.href}).post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 1});
+				new Request({url:window.location.href}).post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 1});
 			}
 			else
 			{
 				item.setStyle('display', 'none');
 				image.src = image.src.replace('folMinus.gif', 'folPlus.gif');
-				new Request({url: window.location.href}).post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 0});
+				new Request({url:window.location.href}).post({'isAjax': 1, 'action':'toggleTabletree', 'id': id, 'state': 0});
 			}
 
 			return false;
