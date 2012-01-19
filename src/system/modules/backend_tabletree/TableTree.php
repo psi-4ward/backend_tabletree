@@ -78,9 +78,8 @@ class TableTree extends Widget
 	public function __construct($arrAttributes=false, $dc=null)
 	{
 		$this->import('Database');
-    
 		parent::__construct($arrAttributes);
-    	$this->dataContainer = $dc;
+		$this->dataContainer = $dc;
 	}
 
 
@@ -113,7 +112,6 @@ class TableTree extends Widget
 	{
 		if (!($this->Input->post($this->strName.'_save') || $this->alwaysSave))
 		{
-//			$this->mandatory = false;
 			$this->blnSubmitInput = false;
 		}
 
@@ -139,7 +137,7 @@ class TableTree extends Widget
 		}
 		
 		$GLOBALS['TL_JAVASCRIPT'][] = 'system/modules/backend_tabletree/html/tabletreewizard' . $strJSSuffix . '.js';
- 
+
 		// get table, column and setup root id's
 		$root = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['root'];
 		$root = is_array($root) ? $root : ((is_numeric($root) && $root > 0) ? $root : 0);
@@ -158,7 +156,6 @@ class TableTree extends Widget
 
 		$this->setTableHeader();
 
-
 		// Create Tree Render with custom root points
 		$strTabletree = '';
 		$root = is_array($root) ? $root : array($root);
@@ -167,7 +164,7 @@ class TableTree extends Widget
 			// call renderTabletree
 			$strTabletree .= $this->renderTabletree($pid, -20);			
 		}
-	
+
 		return '  <ul class="tl_listing'.(strlen($this->strClass) ? ' ' . $this->strClass : '').'" id="'.$this->strId.'">
     <li class="tl_folder_top"><div class="tl_left">'.$this->generateImage((strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] : 'tablewizard.gif')).' '.(sprintf(strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] : ($GLOBALS['TL_LANG']['MSC']['tableTree']['title'] ? $GLOBALS['TL_LANG']['MSC']['tableTree']['title'] : 'Table: %s') , $sourceTable)) .'</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['changeSelected'].'</label> <input type="checkbox" name="'.$this->strName.'_save" id="ctrl_'.$this->strId.'" class="tl_tree_checkbox" value="1" onclick="Backend.showTreeBody(this, \''.$this->strId.'_parent\');" /></div><div style="clear:both;"></div></li><li class="parent" id="'.$this->strId.'_parent"><ul>'.$strTabletree.$strReset.'
   </ul></li></ul>';
@@ -176,9 +173,12 @@ class TableTree extends Widget
 
 	public function setTableHeader()
 	{
-			
 		// get icons
 		list($sourceTable, $sourceColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['tableColumn']);
+		list($itemTable, $itemColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['itemColumn']);
+
+		$tblItems=($itemTable?$itemTable:$sourceTable);
+		$colItems=($itemTable?$itemColumn:$sourceColumn);
 
 		// setup default icons
 		$titleIcon = 'tablewizard.gif';
@@ -191,34 +191,41 @@ class TableTree extends Widget
 			$objCatalog = $this->Database->prepare("SELECT * FROM tl_catalog_types WHERE tableName=?")
 					->limit(1)
 					->execute($sourceTable);
-		
+
 			if ($objCatalog->numRows)
 			{
 				$blnCatalog = true;
 				$this->import('Catalog');
-				
+
 				// load langages
 				$GLOBALS['TL_LANG'][$objCatalog->tableName] = $GLOBALS['TL_LANG']['tl_catalog_items'];
-				// load dca
-				$GLOBALS['TL_DCA'][$objCatalog->tableName] = $this->Catalog->getCatalogDca($objCatalog->id);
-	
+				// load dca for the catalog.
+				$this->Catalog->initializeCatalogItems($sourceTable);
+
 				$titleIcon = 'system/modules/catalog/html/icon.gif';
 				$icon = 'iconPLAIN.gif';
 				$headerPrefix = $objCatalog->name;
-	
+
 			}
-		}		
-		
+		}
+
 		if (!$blnCatalog)
 		{
-			$this->loadLanguageFile($sourceTable);
-			$this->loadDataContainer($sourceTable);			
+			$this->loadLanguageFile($tblItems);
+			$this->loadDataContainer($tblItems);
 
-			$headerPrefix = ucfirst(str_replace('tl ', '', str_replace('_', ' ', $sourceTable)));
+			$headerPrefix = ucfirst(str_replace('tl ', '', str_replace('_', ' ', $tblItems)));
 
-			$titleIcon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][0] ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][0] : ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0] ? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0] : 'tablewizard.gif');
-
-			$icon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1] ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1] : ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1] ? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1] : 'iconPLAIN.gif');
+			$titleIcon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][0]
+						? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][0]
+						: ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0]
+							? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0] 
+							: 'tablewizard.gif');
+			$icon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1]
+						? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1]
+						: ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1]
+							? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1]
+							: 'iconPLAIN.gif');
 		}
 
 		if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleValues'])
@@ -243,11 +250,22 @@ class TableTree extends Widget
 			}
 		}
 
+		if($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType']=='radio')
+		{
+			// cannot use $this->varValue, as its value is not available at load time
+			$objData = $this->Database->prepare('SELECT '.$colItems.' AS title FROM '.$tblItems.' WHERE id=(SELECT '.$this->strField.' FROM '.$this->strTable.' WHERE id=?)')
+									  ->limit(1)
+									  ->execute($this->Input->get('id'));
+			$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = '<strong>'. $headerPrefix . '</strong>: ' .
+				$objData->title;
+		}
+
 		if (!strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']))
 		{
 			$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = '<strong>'. $headerPrefix . '</strong>: ' .
-				($GLOBALS['TL_DCA'][$sourceTable]['fields'][$sourceColumn]['label'][0] ? $GLOBALS['TL_DCA'][$sourceTable]['fields'][$sourceColumn]['label'][0] : '<em>'.$sourceColumn.'</em>') ;
+				($GLOBALS['TL_DCA'][$tblItems]['fields'][$colItems]['label'][0] ? $GLOBALS['TL_DCA'][$tblItems]['fields'][$colItems]['label'][0] : '<em>'.$colItems.'</em>') ;
 		}
+
 		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] =  $titleIcon;
 		$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['icon'] = $icon;
 	}
@@ -293,11 +311,9 @@ class TableTree extends Widget
 
 			}
 		}
-       
+
 		return $this->renderTabletree($id, ($level * 20));
 	}
-
-
 
 
 	/**
@@ -365,8 +381,8 @@ class TableTree extends Widget
 			$arrData['name'] = $this->Input->post('name');
 		
 			$objWidget = new $GLOBALS['BE_FFL']['tableTree']($arrData, $dc);
-	
-			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level'))));			
+
+			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level'))));
 			exit; break;
 		}
 	}
@@ -385,6 +401,7 @@ class TableTree extends Widget
 		$session = $this->Session->getData();
 
 		list($sourceTable, $sourceColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['tableColumn']);
+		list($itemTable, $itemColumn) = explode('.', $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['itemColumn']);
 
 		$flag = substr($this->strField, 0, 2);
 		$node = 'tree_' . $this->strTable . '_' . $this->strField;
@@ -418,7 +435,7 @@ class TableTree extends Widget
 				$blnCatalog = false;
 			}
 
-			$treeView = $this->Database->fieldExists('pid', $sourceTable) && !$blnCatalog;
+			$treeView = ($this->Database->fieldExists('pid', $sourceTable) && !$blnCatalog);
 
 			$sort = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['sortColumn'];
 			if(!($sort && $this->Database->fieldExists($sort, $sourceTable)))
@@ -426,17 +443,18 @@ class TableTree extends Widget
 			if ($treeView)
 			{
 
-				$children = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] 
+				$children = ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] || $itemTable) 
 					? '' : " AND (SELECT COUNT(*) FROM ". $sourceTable ." q WHERE q.pid=o.id)>0";
-				$grandChildren = "(SELECT COUNT(*) FROM ". $sourceTable ."
+				$grandChildren = (!$itemTable)?"(SELECT COUNT(*) FROM ". $sourceTable ."
 										INNER JOIN ". $sourceTable ." AS Child ON ". $sourceTable .".id=Child.pid
 										INNER JOIN ". $sourceTable ." GrandChild ON Child.id=GrandChild.pid
-										WHERE ". $sourceTable .".pid=?) AS grandchildCount";
+										WHERE ". $sourceTable .".pid=? GROUP BY ". $sourceTable .".id) AS grandchildCount"
+									:'0 AS grandchildCount';
 
 				$objNodes = $this->Database->prepare("SELECT id, (SELECT COUNT(*) FROM ". $sourceTable ." i WHERE i.pid=o.id) AS childCount, ".$grandChildren .", ". $sourceColumn . " AS name FROM ". $sourceTable. " o WHERE pid=?".$children." ORDER BY ". $sort)
-										 ->execute($pid, $pid);                           
+										 ->execute($pid, $pid);
 			}
-			
+
 			if (!$treeView || ($treeView && $objNodes->numRows == 0 && $level == 0))  
 			{
 				if (!$treeView && $pid>0)
@@ -445,11 +463,10 @@ class TableTree extends Widget
 				}
 				$objNodes = $this->Database->execute("SELECT id, 0 AS childCount, 0 AS grandchildCount, ". $sourceColumn ." AS name FROM ". $sourceTable .$strWhere." ORDER BY ".$sort);
 			}
-
 		}
 		catch (Exception $ee)
 		{
-			return '';
+			return 'Exception: '.$ee->getMessage();
 		}
 
 
@@ -466,25 +483,32 @@ class TableTree extends Widget
 		while ($objNodes->next())
 		{
 
-			$return .= "\n    " . '<li class="'.(($objNodes->childCount && $maxLevel) ? 'tl_folder' : 'tl_file').'" onmouseover="Theme.hoverDiv(this, 1);" onmouseout="Theme.hoverDiv(this, 0);"><div class="tl_left" style="padding-left:'.($intMargin + $intSpacing).'px;">';
+			$return .= "\n    " . '<li class="'.((($objNodes->childCount && $maxLevel) || $itemTable) ? 'tl_folder' : 'tl_file').'" onmouseover="Theme.hoverDiv(this, 1);" onmouseout="Theme.hoverDiv(this, 0);"><div class="tl_left" style="padding-left:'.($intMargin + $intSpacing).'px;">';
 
 			$folderAttribute = 'style="margin-left:20px;"';
 			$session[$node][$objNodes->id] = is_numeric($session[$node][$objNodes->id]) ? $session[$node][$objNodes->id] : 0;
 			
 			//	toggleStructure: function (el, id, level, mode)
-			if ((($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] && $objNodes->childCount) || (!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] && $objNodes->grandchildCount)) && $maxLevel)
+			if ((
+					(
+						($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children'] || $itemTable)
+						&& $objNodes->childCount
+					)
+					|| (!$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['children']
+						&& $objNodes->grandchildCount)
+				)
+				&& $maxLevel)
 			{
 				$folderAttribute = '';
 				$img = ($session[$node][$objNodes->id] == 1) ? 'folMinus.gif' : 'folPlus.gif';
 				$return .= '<a href="'.$this->addToUrl($flag.'tg='.$objNodes->id).'" onclick="Backend.getScrollOffset(); return AjaxRequestTabletree.toggleTabletree(this, \''.$xtnode.'_'.$objNodes->id.'\', \''.$this->strField.'\', \''.$this->strName.'\', '.$level.');">'.$this->generateImage($img, '', 'style="margin-right:2px;"').'</a>';
 			}
 
-			$sub = 0;
 			$image = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['icon'] ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['icon'] : 'iconPLAIN.gif';
 
 
 			// Add table item name
-			$return .= $this->generateImage($image, '', $folderAttribute).' <label for="'.$this->strName.'_'.$objNodes->id.'">'.(($objNodes->childCount && $maxLevel) ? '<strong>' : '').$objNodes->name.(($objNodes->childCount) ? '</strong>' : '').'</label></div> <div class="tl_right">';
+			$return .= $this->generateImage($image, '', $folderAttribute).' <label for="'.$this->strName.'_'.$objNodes->id.'">'.((($objNodes->childCount && $maxLevel) || $itemTable) ? '<strong>' : '').$objNodes->name.((($objNodes->childCount && $maxLevel) || $itemTable) ? '</strong>' : '').'</label></div> <div class="tl_right">';
 
 			// Prevent parent selection
 			if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['childrenOnly'] && $objNodes->childCount)
@@ -495,15 +519,15 @@ class TableTree extends Widget
 			// Add checkbox or radio button
 			else
 			{
-				// only add input when the minumum level has been reached
-				if($minLevel)
+				// only add input when the minumum level has been reached and we are not the parent table.
+				if($minLevel && !$itemTable)
 				{
 					switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
 					{
 						case 'checkbox':
 							$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
 							break;
-		
+
 						case 'radio':
 							$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
 							break;
@@ -512,6 +536,13 @@ class TableTree extends Widget
 			}
 
 			$return .= '</div><div style="clear:both;"></div></li>';
+
+			// if this was only the parent, display the items now.
+			if($itemTable)
+			{
+				$return .= $this->displayItems($itemTable, $itemColumn, $objNodes->id, ($intMargin + ($intSpacing*2)));
+			}
+
 			// Call next node
 			if ($objNodes->childCount && $session[$node][$objNodes->id] == 1 && $maxLevel)
 			{
@@ -521,6 +552,49 @@ class TableTree extends Widget
 			}
 		}
 
+		return $return;
+	}
+
+	protected function displayItems($itemTable, $itemColumn, $pid, $intMargin)
+	{
+		$strWhere = ' WHERE pid='.$pid;
+		$objNodes = $this->Database->execute("SELECT id, ". $itemColumn ." AS name FROM ". $itemTable .$strWhere." ORDER BY ".$itemColumn);
+		$return = '';
+		while ($objNodes->next())
+		{
+
+			$return .= "\n    " . '<li class="tl_file" onmouseover="Theme.hoverDiv(this, 1);" onmouseout="Theme.hoverDiv(this, 0);"><div class="tl_left" style="padding-left:'.($intMargin + $intSpacing).'px;">';
+
+			$session[$node][$objNodes->id] = is_numeric($session[$node][$objNodes->id]) ? $session[$node][$objNodes->id] : 0;
+			
+			$sub = 0;
+			$image = $GLOBALS['TL_DCA'][$itemTable]['fields'][$itemColumn]['eval']['icon']
+			 ? $GLOBALS['TL_DCA'][$itemTable]['fields'][$itemColumn]['eval']['icon'] : 'iconPLAIN.gif';
+
+			
+			$image = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$itemTable][1]
+						? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$itemTable][1]
+						: ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$itemTable][1]
+							? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$itemTable][1]
+							: 'iconPLAIN.gif');
+			
+			
+			// Add table item name
+			$return .= $this->generateImage($image, '', 'style="margin-left:20px;"').' <label for="'.$this->strName.'_'.$objNodes->id.'">'.$objNodes->name.'</label></div> <div class="tl_right">';
+
+			switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
+			{
+				case 'checkbox':
+					$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+					break;
+
+				case 'radio':
+					$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+					break;
+			}
+
+			$return .= '</div><div style="clear:both;"></div></li>';
+		}
 		return $return;
 	}
 
