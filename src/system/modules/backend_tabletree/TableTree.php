@@ -165,8 +165,11 @@ class TableTree extends Widget
 			$strTabletree .= $this->renderTabletree($pid, -20);			
 		}
 
+		$display = ($this->mandatory && !$this->value) ? '' : 'style="display:none"';
+
+	
 		return '  <ul class="tl_listing'.(strlen($this->strClass) ? ' ' . $this->strClass : '').'" id="'.$this->strId.'">
-    <li class="tl_folder_top"><div class="tl_left">'.$this->generateImage((strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] : 'tablewizard.gif')).' '.(sprintf(strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] : ($GLOBALS['TL_LANG']['MSC']['tableTree']['title'] ? $GLOBALS['TL_LANG']['MSC']['tableTree']['title'] : 'Table: %s') , $sourceTable)) .'</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['changeSelected'].'</label> <input type="checkbox" name="'.$this->strName.'_save" id="ctrl_'.$this->strId.'" class="tl_tree_checkbox" value="1" onclick="Backend.showTreeBody(this, \''.$this->strId.'_parent\');" /></div><div style="clear:both;"></div></li><li class="parent" id="'.$this->strId.'_parent"><ul>'.$strTabletree.$strReset.'
+    <li class="tl_folder_top"><div class="tl_left">'.$this->generateImage((strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] : 'tablewizard.gif')).' '.(sprintf(strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] : ($GLOBALS['TL_LANG']['MSC']['tableTree']['title'] ? $GLOBALS['TL_LANG']['MSC']['tableTree']['title'] : 'Table: %s') , $sourceTable)) .'</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['changeSelected'].'</label> <input type="checkbox" name="'.$this->strName.'_save" id="ctrl_'.$this->strId.'" class="tl_tree_checkbox" value="1" onclick="Backend.showTreeBody(this, \''.$this->strId.'_parent\');" '.(!$display?'checked':'').' /></div><div style="clear:both;"></div></li><li class="parent" id="'.$this->strId.'_parent" '.$display.'><ul>'.$strTabletree.$strReset.'
   </ul></li></ul>';
 	}
 
@@ -382,8 +385,8 @@ class TableTree extends Widget
 		
 			$objWidget = new $GLOBALS['BE_FFL']['tableTree']($arrData, $dc);
 
-			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level'))));
-			exit; break;
+			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level'))));			
+			exit;
 		}
 	}
 
