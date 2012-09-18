@@ -5,5 +5,5 @@
  */
 ClassLoader::addClasses(array
 (
-	'TableTree' => 'system/modules/backend_tabletree/TableTree.php',
+	'BackendTableTree\TableTree' => 'system/modules/backend_tabletree/TableTree.php',
 ));

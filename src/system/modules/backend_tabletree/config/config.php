@@ -21,12 +21,12 @@
  * @filesource
  */
 
-$GLOBALS['BE_FFL']['tableTree'] = 'TableTree';
+$GLOBALS['BE_FFL']['tableTree'] = '\BackendTableTree\TableTree';
 
 if (TL_MODE == 'BE')
 {
-	$GLOBALS['TL_HOOKS']['executePreActions'][] = array('TableTree', 'executePreActions');
-	$GLOBALS['TL_HOOKS']['executePostActions'][] = array('TableTree', 'executePostActions');
+	$GLOBALS['TL_HOOKS']['executePreActions'][] = array('\BackendTableTree\TableTree', 'executePreActions');
+	$GLOBALS['TL_HOOKS']['executePostActions'][] = array('\BackendTableTree\TableTree', 'executePostActions');
 
 /**
  * TL Icons Configuration
@@ -81,4 +81,3 @@ if (TL_MODE == 'BE')
 
 
 
-?>
