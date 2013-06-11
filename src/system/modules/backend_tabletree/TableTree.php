@@ -1,4 +1,6 @@
-<?php if (!defined('TL_ROOT')) die('You can not access this file directly!');
+<?php
+
+namespace BackendTableTree;
 
 /**
  * TYPOlight webCMS
@@ -29,7 +31,7 @@
  * @package    Controller
  */
 
-class TableTree extends Widget
+class TableTree extends \Widget
 {
 
 	/**
@@ -73,7 +75,9 @@ class TableTree extends Widget
 
 	/**
 	 * Load database object
-	 * @param array
+	 *
+	 * @param bool $arrAttributes
+	 * @param DataContainer $dc
 	 */
 	public function __construct($arrAttributes=false, $dc=null)
 	{
@@ -85,8 +89,9 @@ class TableTree extends Widget
 
 	/**
 	 * Add specific attributes
-	 * @param string
-	 * @param mixed
+	 *
+	 * @param string $strKey
+	 * @param mixed $varValue
 	 */
 	public function __set($strKey, $varValue)
 	{
@@ -105,12 +110,13 @@ class TableTree extends Widget
 
 	/**
 	 * Skip the field if "change selection" is not checked
-	 * @param mixed
+	 *
+	 * @param mixed $varInput
 	 * @return mixed
 	 */
 	protected function validator($varInput)
 	{
-		if (!($this->Input->post($this->strName.'_save') || $this->alwaysSave))
+		if (!(\Input::post($this->strName.'_save') || $this->alwaysSave))
 		{
 			$this->blnSubmitInput = false;
 		}
@@ -121,6 +127,7 @@ class TableTree extends Widget
 
 	/**
 	 * Generate the widget and return it as string
+	 *
 	 * @return string
 	 */
 	public function generate()
@@ -145,13 +152,13 @@ class TableTree extends Widget
 		// Reset radio button selection
 		if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'] == 'radio')
 		{
-			$strReset = "\n" . '    <li class="tl_folder"><div class="tl_left">&nbsp;</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'_0" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['resetSelected'].'</label> <input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_0" class="tl_tree_radio" value="" onfocus="Backend.getScrollOffset();" /></div><div style="clear:both;"></div></li>';
+			$strReset = "\n" . '    <li class="tl_folder"><div class="tl_left">&nbsp;</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'_0" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['resetSelected'].'</label> <input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_0" class="tl_tree_radio" value="" onfocus="Backend.getScrollOffset();" ></div><div style="clear:both;"></div></li>';
 		}
 
 		// Select ALL checkbox selection
 		if ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'] == 'checkbox')
 		{
-			$strReset = "\n" . '    <li class="tl_folder"><div class="tl_left">&nbsp;</div> <div class="tl_right"><label for="check_all_'.$this->strId.'_0" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['selectAll'].'</label> <input type="checkbox" id="check_all_' . $this->strId . '_0" class="tl_checkbox" value="" onclick="Backend.toggleCheckboxGroup(this, \'' . $this->strName . '\')" /></div><div style="clear:both;"></div></li>';
+			$strReset = "\n" . '    <li class="tl_folder"><div class="tl_left">&nbsp;</div> <div class="tl_right"><label for="check_all_'.$this->strId.'_0" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['selectAll'].'</label> <input type="checkbox" id="check_all_' . $this->strId . '_0" class="tl_checkbox" value="" onclick="Backend.toggleCheckboxGroup(this, \'' . $this->strName . '\')" ></div><div style="clear:both;"></div></li>';
 		}
 
 		$this->setTableHeader();
@@ -165,8 +172,11 @@ class TableTree extends Widget
 			$strTabletree .= $this->renderTabletree($pid, -20);			
 		}
 
+		$display = ($this->mandatory && !$this->value) ? '' : 'style="display:none"';
+
+	
 		return '  <ul class="tl_listing'.(strlen($this->strClass) ? ' ' . $this->strClass : '').'" id="'.$this->strId.'">
-    <li class="tl_folder_top"><div class="tl_left">'.$this->generateImage((strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] : 'tablewizard.gif')).' '.(sprintf(strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] : ($GLOBALS['TL_LANG']['MSC']['tableTree']['title'] ? $GLOBALS['TL_LANG']['MSC']['tableTree']['title'] : 'Table: %s') , $sourceTable)) .'</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['changeSelected'].'</label> <input type="checkbox" name="'.$this->strName.'_save" id="ctrl_'.$this->strId.'" class="tl_tree_checkbox" value="1" onclick="Backend.showTreeBody(this, \''.$this->strId.'_parent\');" /></div><div style="clear:both;"></div></li><li class="parent" id="'.$this->strId.'_parent"><ul>'.$strTabletree.$strReset.'
+    <li class="tl_folder_top"><div class="tl_left">'.$this->generateImage((strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['titleIcon'] : 'tablewizard.gif')).' '.(sprintf(strlen($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title']) ? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] : ($GLOBALS['TL_LANG']['MSC']['tableTree']['title'] ? $GLOBALS['TL_LANG']['MSC']['tableTree']['title'] : 'Table: %s') , $sourceTable)) .'</div> <div class="tl_right"><label for="ctrl_'.$this->strId.'" class="tl_change_selected">'.$GLOBALS['TL_LANG']['MSC']['changeSelected'].'</label> <input type="checkbox" name="'.$this->strName.'_save" id="ctrl_'.$this->strId.'" class="tl_tree_checkbox" value="1" onclick="Backend.showTreeBody(this, \''.$this->strId.'_parent\');" '.(!$display?'checked':'').' ></div><div style="clear:both;"></div></li><li class="parent" id="'.$this->strId.'_parent" '.$display.'><ul>'.$strTabletree.$strReset.'
   </ul></li></ul>';
 	}
 
@@ -221,8 +231,8 @@ class TableTree extends Widget
 						: ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0]
 							? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][0] 
 							: 'tablewizard.gif');
-			$icon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1]
-						? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$sourceTable][1]
+			$icon = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['icon']
+						? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['icon']
 						: ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1]
 							? $GLOBALS['TL_CONFIG']['tableTree']['icon'][$sourceTable][1]
 							: 'iconPLAIN.gif');
@@ -232,7 +242,7 @@ class TableTree extends Widget
 		{
 			// cannot use $this->varValue, as its value is not available at load time
 			$objData = $this->Database->prepare("SELECT ".$this->strField." FROM ".$this->strTable." WHERE id=?")
-									 ->execute($this->Input->get('id'));
+									 ->execute(\Input::get('id'));
 
 			$varData = $objData->fetchAllAssoc();
 			$varData = $varData[0][$this->strField];
@@ -255,7 +265,7 @@ class TableTree extends Widget
 			// cannot use $this->varValue, as its value is not available at load time
 			$objData = $this->Database->prepare('SELECT '.$colItems.' AS title FROM '.$tblItems.' WHERE id=(SELECT '.$this->strField.' FROM '.$this->strTable.' WHERE id=?)')
 									  ->limit(1)
-									  ->execute($this->Input->get('id'));
+									  ->execute(\Input::get('id'));
 			$GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['title'] = '<strong>'. $headerPrefix . '</strong>: ' .
 				$objData->title;
 		}
@@ -282,7 +292,7 @@ class TableTree extends Widget
 	{
 		$this->strField = $strField;
 
-		if (!$this->Input->post('isAjax'))
+		if (!\Input::post('isAjax'))
 		{
 			return '';
 		}
@@ -328,17 +338,17 @@ class TableTree extends Widget
 		{
 			// Toggle nodes of the file or page tree
 			case 'toggleTabletree':
-				$this->strAjaxId = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', $this->Input->post('id'));
-				$this->strAjaxKey = str_replace('_' . $this->strAjaxId, '', $this->Input->post('id'));
+				$this->strAjaxId = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', \Input::post('id'));
+				$this->strAjaxKey = str_replace('_' . $this->strAjaxId, '', \Input::post('id'));
 
-				if ($this->Input->get('act') == 'editAll')
+				if (\Input::get('act') == 'editAll')
 				{
 					$this->strAjaxKey = preg_replace('/(.*)_[0-9a-zA-Z]+$/i', '$1', $this->strAjaxKey);
-					$this->strAjaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', $this->Input->post('name'));
+					$this->strAjaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', \Input::post('name'));
 				}
 
 				$nodes = $this->Session->get($this->strAjaxKey);
-				$nodes[$this->strAjaxId] = intval($this->Input->post('state'));
+				$nodes[$this->strAjaxId] = intval(\Input::post('state'));
 
 				$this->Session->set($this->strAjaxKey, $nodes);
 				$this->outputAjax('');
@@ -346,17 +356,17 @@ class TableTree extends Widget
 
 			// Load nodes of the file or page tree
 			case 'loadTabletree':
-				$this->strAjaxId = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', $this->Input->post('id'));
-				$this->strAjaxKey = str_replace('_' . $this->strAjaxId, '', $this->Input->post('id'));
+				$this->strAjaxId = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', \Input::post('id'));
+				$this->strAjaxKey = str_replace('_' . $this->strAjaxId, '', \Input::post('id'));
 
-				if ($this->Input->get('act') == 'editAll')
+				if (\Input::get('act') == 'editAll')
 				{
 					$this->strAjaxKey = preg_replace('/(.*)_[0-9a-zA-Z]+$/i', '$1', $this->strAjaxKey);
-					$this->strAjaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', $this->Input->post('name'));
+					$this->strAjaxName = preg_replace('/.*_([0-9a-zA-Z]+)$/i', '$1', \Input::post('name'));
 				}
 
 				$nodes = $this->Session->get($this->strAjaxKey);
-				$nodes[$this->strAjaxId] = intval($this->Input->post('state'));
+				$nodes[$this->strAjaxId] = intval(\Input::post('state'));
 
 				$this->Session->set($this->strAjaxKey, $nodes);
 				// DO NOT exit OR ouputAjax() here - also the postAction gets loaded in this case and takes care of the request token and exit
@@ -378,12 +388,12 @@ class TableTree extends Widget
 
 			$arrData['strTable'] = $dc->table;
 			$arrData['id'] = strlen($this->strAjaxName) ? $this->strAjaxName : $dc->id;
-			$arrData['name'] = $this->Input->post('name');
+			$arrData['name'] = \Input::post('name');
 		
 			$objWidget = new $GLOBALS['BE_FFL']['tableTree']($arrData, $dc);
 
-			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, $this->Input->post('field'), intval($this->Input->post('level'))));
-			exit; break;
+			$this->outputAjax($objWidget->generateAjax($this->strAjaxId, \Input::post('field'), intval(\Input::post('level'))));			
+			exit;
 		}
 	}
 
@@ -408,9 +418,9 @@ class TableTree extends Widget
 		$xtnode = 'tree_' . $this->strTable . '_' . $this->strName;
 
 		// Get session data and toggle nodes
-		if ($this->Input->get($flag.'tg'))
+		if (\Input::get($flag.'tg'))
 		{
-			$session[$node][$this->Input->get($flag.'tg')] = (isset($session[$node][$this->Input->get($flag.'tg')]) && $session[$node][$this->Input->get($flag.'tg')] == 1) ? 0 : 1;
+			$session[$node][\Input::get($flag.'tg')] = (isset($session[$node][\Input::get($flag.'tg')]) && $session[$node][\Input::get($flag.'tg')] == 1) ? 0 : 1;
 			$this->Session->setData($session);
 
 			$this->redirect(preg_replace('/(&(amp;)?|\?)'.$flag.'tg=[^& ]*/i', '', $this->Environment->request));
@@ -525,11 +535,11 @@ class TableTree extends Widget
 					switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
 					{
 						case 'checkbox':
-							$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+							$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' >';
 							break;
 
 						case 'radio':
-							$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+							$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' >';
 							break;
 					}
 				}
@@ -567,11 +577,7 @@ class TableTree extends Widget
 
 			$session[$node][$objNodes->id] = is_numeric($session[$node][$objNodes->id]) ? $session[$node][$objNodes->id] : 0;
 			
-			$sub = 0;
-			$image = $GLOBALS['TL_DCA'][$itemTable]['fields'][$itemColumn]['eval']['icon']
-			 ? $GLOBALS['TL_DCA'][$itemTable]['fields'][$itemColumn]['eval']['icon'] : 'iconPLAIN.gif';
 
-			
 			$image = $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$itemTable][1]
 						? $GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['reference']['icon'][$itemTable][1]
 						: ($GLOBALS['TL_CONFIG']['tableTree']['icon'][$itemTable][1]
@@ -585,11 +591,11 @@ class TableTree extends Widget
 			switch ($GLOBALS['TL_DCA'][$this->strTable]['fields'][$this->strField]['eval']['fieldType'])
 			{
 				case 'checkbox':
-					$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+					$return .= '<input type="checkbox" name="'.$this->strName.'[]" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_checkbox" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' >';
 					break;
 
 				case 'radio':
-					$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' />';
+					$return .= '<input type="radio" name="'.$this->strName.'" id="'.$this->strName.'_'.$objNodes->id.'" class="tl_tree_radio" value="'.specialchars($objNodes->id).'" onfocus="Backend.getScrollOffset();"'.$this->optionChecked($objNodes->id, $this->varValue).' >';
 					break;
 			}
 
